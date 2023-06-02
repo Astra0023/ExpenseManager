@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/admin/Dashboard.vue';
-import SidebarLayout from '../components/SidebarLayout.vue';
 import Roles from '../views/admin/Roles.vue';
 import Users from '../views/admin/User.vue';
 import ExpenseCategory from '../views/admin/ExpenseCategory.vue';

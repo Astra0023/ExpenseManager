@@ -1,45 +1,56 @@
+<script setup>
+  import SidebarLayout from '../../components/SidebarLayout.vue';
+  import headerNavbarLayout from '../../components/headerNavbarLayout.vue';
+</script>
 <template>
-  <div class="d-flex align-items-center justify-content-center vh-100">
-    <div class="border-0 card">
-      <div class="card-header">
-        <div class="text-end">
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategory">
-            Add Category
-          </button>
+  <div class="wrapper">
+    <!-- Sidebar  -->
+    <SidebarLayout></SidebarLayout>
+    <div id="content">
+        <!-- Header -->
+      <headerNavbarLayout></headerNavbarLayout>
+      <div class="container align-items-center justify-content-center vh-100">
+        <div class="border-0 card">
+          <div class="card-header">
+            <div class="text-end">
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategory">
+                Add Category
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Category Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Created at</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider" v-if="this.categories.length > 0">
+                  <tr class="row-pointer" v-on:click="getCategoryData(category.categoryID)" data-bs-toggle="modal" data-bs-target="#editRole" v-for="(category, index) in this.categories" :key="index">
+                    <td>{{category.name}}</td>
+                    <td>{{category.description}}</td>
+                    <td>{{format_date(category.created_at)}}</td>
+                  </tr>
+                </tbody>
+                <tbody class="table-group-divider" v-else-if="this.categories.length == 0">
+                  <tr>
+                    <td colspan="4" class="bg-danger">No data found</td>
+                  </tr>
+                </tbody>
+                <tbody class="table-group-divider" v-else>
+                  <tr>
+                    <td colspan="4">Loading ...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
         </div>
       </div>
-      <div class="card-body">
-
-        <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Category Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Created at</th>
-              </tr>
-            </thead>
-            <tbody class="table-group-divider" v-if="this.categories.length > 0">
-              <tr class="row-pointer" v-on:click="getCategoryData(category.categoryID)" data-bs-toggle="modal" data-bs-target="#editRole" v-for="(category, index) in this.categories" :key="index">
-                <td>{{category.name}}</td>
-                <td>{{category.description}}</td>
-                <td>{{format_date(category.created_at)}}</td>
-              </tr>
-            </tbody>
-            <tbody class="table-group-divider" v-else-if="this.categories.length == 0">
-              <tr>
-                <td colspan="4" class="bg-danger">No data found</td>
-              </tr>
-            </tbody>
-            <tbody class="table-group-divider" v-else>
-              <tr>
-                <td colspan="4">Loading ...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
     </div>
   </div>
-
   <!-- Add role Modal -->
   <div class="modal fade" id="addCategory" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
