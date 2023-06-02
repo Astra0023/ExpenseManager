@@ -22,7 +22,12 @@
               <tr class="row-pointer" v-on:click="getRoleData(role.roleID)" data-bs-toggle="modal" data-bs-target="#editRole" v-for="(role, index) in this.roles" :key="index">
                 <td>{{role.name}}</td>
                 <td>{{role.description}}</td>
-                <td>{{role.created_at}}</td>
+                <td>{{format_date(role.created_at)}}</td>
+              </tr>
+            </tbody>
+            <tbody class="table-group-divider" v-else-if="this.roles.length == 0">
+              <tr>
+                <td colspan="4" class="bg-danger">No data found</td>
               </tr>
             </tbody>
             <tbody class="table-group-divider" v-else>
@@ -113,105 +118,111 @@
 </style>
 
 <script>
-import axios from 'axios'
-    export default {
-        name: 'Roles',
-        data(){
-            return{
-                errorList: '',
-                errorEditList: '',
-                roles: [],
-                model: {
-                  role: {
-                    name: '',
-                    description: ''
-                  },
-                  editrole: {
-                    roleID: '',
-                    name: '',
-                    description: ''
-                  }
-                }
+  import moment from 'moment';
+  import axios from 'axios'
+  export default {
+    name: 'Roles',
+    data(){
+        return{
+            errorList: '',
+            errorEditList: '',
+            roles: [],
+            model: {
+              role: {
+                name: '',
+                description: ''
+              },
+              editrole: {
+                roleID: '',
+                name: '',
+                description: ''
+              }
             }
-        },
-        mounted(){
-          this.getRole();
-        },
-        methods: {
-            getRole(){
-              axios.get('http://localhost:8000/api/role/lists').then(res => {
-              this.roles = res.data.roles
-              });
-            },
-            storeRole(){
-              var thisVar = this;
-              axios.post('http://localhost:8000/api/role/store', this.model.role).then(res => {
-                this.model.role = {
-                  name: '',
-                  description: ''
-                }
-                this.errorList = '';
-                if(alert(res.data.message)){}
-                else    window.location.reload(); 
-              }).catch(function (error){
-                if(error.response){
-                  if (error.response.status === 422) {
-                    thisVar.errorList = error.response.data.errors;
-                  } else if (error.request) {
-                    console.log(error.request);
-                  } else {
-                    console.log('Error', error.message);
-                  }
-                } 
-              })
-            },
-            getRoleData(roleID){
-              axios.get(`http://localhost:8000/api/role/${roleID}`).then(res => {
-                this.model.editrole.roleID = res.data.getRole.roleID
-                this.model.editrole.name = res.data.getRole.name
-                this.model.editrole.description = res.data.getRole.description
-              });
-            },
-            updateRole(){
-              var thisVar = this;
-              axios.put(`http://localhost:8000/api/role/${this.model.editrole.roleID}/edit`, this.model.editrole).then(res => {
-                this.model.editrole = {
-                  roleID: '',
-                  name: '',
-                  description: ''
-                }
-                this.errorEditList = '';
-                if(alert(res.data.message)){}
-                else    window.location.reload(); 
-              
-              }).catch(function (error){
-                if(error.response){
-                  if (error.response.status === 422) {
-                    thisVar.errorEditList = error.response.data.errors;
-                  } else if (error.request) {
-                    console.log(error.request);
-                  } else {
-                    console.log('Error', error.message);
-                  }
-                } 
-              })
-            },       
-            deleteRole(roleID){
-              axios.put(`http://localhost:8000/api/role/${roleID}/delete`).then(res => {
-                if(alert(res.data.message)){}
-                else    window.location.reload(); 
-              }).catch(function (error){
-                if(error.response){
-                  if (error.response.status === 422) {
-                    thisVar.errorEditList = error.response.data.errors;
-                  } else if (error.request) {
-                    console.log(error.request);
-                  } else {
-                    console.log('Error', error.message);
-                  }
-                } 
-              })
+        }
+    },
+    mounted(){
+      this.getRole();
+    },
+    methods: {
+      format_date(value){
+        if (value) {
+            return moment(String(value)).format('YYYY-MM-DD hh:mm')
+        }
+      },
+      getRole(){
+        axios.get('http://localhost:8000/api/role/lists').then(res => {
+        this.roles = res.data.roles
+        });
+      },
+      storeRole(){
+        var thisVar = this;
+        axios.post('http://localhost:8000/api/role/store', this.model.role).then(res => {
+          this.model.role = {
+            name: '',
+            description: ''
+          }
+          this.errorList = '';
+          if(alert(res.data.message)){}
+          else    window.location.reload(); 
+        }).catch(function (error){
+          if(error.response){
+            if (error.response.status === 422) {
+              thisVar.errorList = error.response.data.errors;
+            } else if (error.request) {
+              console.log(error.request);
+            } else {
+              console.log('Error', error.message);
             }
-        },
-    }
+          } 
+        })
+      },
+      getRoleData(roleID){
+        axios.get(`http://localhost:8000/api/role/${roleID}`).then(res => {
+          this.model.editrole.roleID = res.data.getRole.roleID
+          this.model.editrole.name = res.data.getRole.name
+          this.model.editrole.description = res.data.getRole.description
+        });
+      },
+      updateRole(){
+        var thisVar = this;
+        axios.put(`http://localhost:8000/api/role/${this.model.editrole.roleID}/edit`, this.model.editrole).then(res => {
+          this.model.editrole = {
+            roleID: '',
+            name: '',
+            description: ''
+          }
+          this.errorEditList = '';
+          if(alert(res.data.message)){}
+          else    window.location.reload(); 
+        
+        }).catch(function (error){
+          if(error.response){
+            if (error.response.status === 422) {
+              thisVar.errorEditList = error.response.data.errors;
+            } else if (error.request) {
+              console.log(error.request);
+            } else {
+              console.log('Error', error.message);
+            }
+          } 
+        })
+      },       
+      deleteRole(roleID){
+        axios.put(`http://localhost:8000/api/role/${roleID}/delete`).then(res => {
+          if(alert(res.data.message)){}
+          else    window.location.reload(); 
+        }).catch(function (error){
+          if(error.response){
+            if (error.response.status === 422) {
+              thisVar.errorEditList = error.response.data.errors;
+            } else if (error.request) {
+              console.log(error.request);
+            } else {
+              console.log('Error', error.message);
+            }
+          } 
+        })
+      }
+    },
+  }
 </script>

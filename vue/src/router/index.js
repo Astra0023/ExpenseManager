@@ -4,6 +4,7 @@ import SidebarLayout from '../components/SidebarLayout.vue';
 import Roles from '../views/admin/Roles.vue';
 import Users from '../views/admin/User.vue';
 import ExpenseCategory from '../views/admin/ExpenseCategory.vue';
+import Expenses from '../views/admin/Expenses.vue';
 import Login from '../views/Login.vue';
 
 const routes = [
@@ -14,12 +15,8 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/dashboard',
-    // name: 'Dashboard ',
-    component: SidebarLayout,
-    children: [
-      {path: '/dashboard', name: 'Dashboard', component: Dashboard}
-    ]
+    name: 'Dashboard ',
+    component: Dashboard,
   },
   {
     path: '/roles',
@@ -35,6 +32,11 @@ const routes = [
     path: '/expensecategory',
     name: 'ExpenseCategory',
     component: ExpenseCategory
+  },
+  {
+    path: '/expenses',
+    name: 'Expenses',
+    component: Expenses
   },
 ];
 

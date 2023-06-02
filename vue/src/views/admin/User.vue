@@ -4,7 +4,7 @@
         <div class="card-header">
           <div class="text-end">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRole">
-              Add Role
+              Add User
             </button>
           </div>
         </div>
@@ -24,7 +24,12 @@
                   <td>{{user.name}}</td>
                   <td>{{user.email}}</td>
                   <td>{{user.role.name}}</td>
-                  <td>{{user.created_at}}</td>
+                  <td>{{format_date(user.created_at)}}</td>
+                </tr>
+              </tbody>
+              <tbody class="table-group-divider" v-else-if="this.users.length == 0">
+                <tr>
+                  <td colspan="4" class="bg-danger">No data found</td>
                 </tr>
               </tbody>
               <tbody class="table-group-divider" v-else>
@@ -131,115 +136,121 @@
     }
   </style>
   
-  <script>
-  import { ref } from "vue";
-  import axios from 'axios'
-      export default {
-          name: 'Users',
-          data(){
-              return{
-                  errorList: '',
-                  errorEditList: '',
-                  users: [],
-                  roles: [],
-                  editusers: [],
-                  model: {
-                    user: {
-                        name: '',
-                        email: '',
-                        roleID: 'selected'
-                    },
-                    edituser: {
-                        userID: '',
-                        name: '',
-                        email: '',
-                        roleID: ''
-                    }
-                  }
-              }
-          },
-          mounted(){
-            this.getUser();
-          },
-          methods: {
-            getUser(){
-                axios.get('http://localhost:8000/api/user/lists').then(res => {
-                this.users = res.data.users
-                this.roles = res.data.roles
-                });
-            },
-            storeRole(){
-                var thisVar = this;
-                axios.post('http://localhost:8000/api/user/store', this.model.user).then(res => {
-                  this.model.user = {
+<script>
+import moment from 'moment';
+import { ref } from "vue";
+import axios from 'axios'
+    export default {
+      name: 'Users',
+      data(){
+          return{
+              errorList: '',
+              errorEditList: '',
+              users: [],
+              roles: [],
+              editusers: [],
+              model: {
+                user: {
                     name: '',
                     email: '',
                     roleID: 'selected'
-                  }
-                  this.errorList = '';
-                  if(alert(res.data.message)){}
-                  else    window.location.reload(); 
-                }).catch(function (error){
-                  if(error.response){
-                    if (error.response.status === 422) {
-                      thisVar.errorList = error.response.data.errors;
-                    } else if (error.request) {
-                      console.log(error.request);
-                    } else {
-                      console.log('Error', error.message);
-                    }
-                  } 
-                })
-            },
-            getUserData(userID){
-                axios.get(`http://localhost:8000/api/user/${userID}`).then(res => {
-                  this.model.edituser.userID = res.data.userGet.userID
-                  this.model.edituser.name = res.data.userGet.name
-                  this.model.edituser.email = res.data.userGet.email
-                  this.model.edituser.roleID = res.data.userGet.roleID
-                });
-            },
-            updateRole(){
-              var thisVar = this;
-              axios.put(`http://localhost:8000/api/user/${this.model.edituser.userID}/edit`, this.model.edituser).then(res => {
-                this.model.edituser = {
-                  userID: '',
-                  roleID: '',
-                  name: '',
-                  email: ''
+                },
+                edituser: {
+                    userID: '',
+                    name: '',
+                    email: '',
+                    roleID: ''
                 }
-                this.errorEditList = '';
-                if(alert(res.data.message)){}
-                else    window.location.reload(); 
-              
-              }).catch(function (error){
-                if(error.response){
-                  if (error.response.status === 422) {
-                    thisVar.errorEditList = error.response.data.errors;
-                  } else if (error.request) {
-                    console.log(error.request);
-                  } else {
-                    console.log('Error', error.message);
-                  }
-                } 
-              })
-            },
-            deleteUser(userID){
-              axios.put(`http://localhost:8000/api/user/${userID}/delete`).then(res => {
-                if(alert(res.data.message)){}
-                else    window.location.reload(); 
-              }).catch(function (error){
-                if(error.response){
-                  if (error.response.status === 422) {
-                    thisVar.errorEditList = error.response.data.errors;
-                  } else if (error.request) {
-                    console.log(error.request);
-                  } else {
-                    console.log('Error', error.message);
-                  }
-                } 
-              })
+              }
+          }
+      },
+      mounted(){
+        this.getUser();
+      },
+      methods: {
+        format_date(value){
+          if (value) {
+              return moment(String(value)).format('YYYY-MM-DD hh:mm')
+          }
+        },
+        getUser(){
+            axios.get('http://localhost:8000/api/user/lists').then(res => {
+            this.users = res.data.users
+            this.roles = res.data.roles
+            });
+        },
+        storeRole(){
+            var thisVar = this;
+            axios.post('http://localhost:8000/api/user/store', this.model.user).then(res => {
+              this.model.user = {
+                name: '',
+                email: '',
+                roleID: 'selected'
+              }
+              this.errorList = '';
+              if(alert(res.data.message)){}
+              else    window.location.reload(); 
+            }).catch(function (error){
+              if(error.response){
+                if (error.response.status === 422) {
+                  thisVar.errorList = error.response.data.errors;
+                } else if (error.request) {
+                  console.log(error.request);
+                } else {
+                  console.log('Error', error.message);
+                }
+              } 
+            })
+        },
+        getUserData(userID){
+            axios.get(`http://localhost:8000/api/user/${userID}`).then(res => {
+              this.model.edituser.userID = res.data.userGet.userID
+              this.model.edituser.name = res.data.userGet.name
+              this.model.edituser.email = res.data.userGet.email
+              this.model.edituser.roleID = res.data.userGet.roleID
+            });
+        },
+        updateRole(){
+          var thisVar = this;
+          axios.put(`http://localhost:8000/api/user/${this.model.edituser.userID}/edit`, this.model.edituser).then(res => {
+            this.model.edituser = {
+              userID: '',
+              roleID: '',
+              name: '',
+              email: ''
             }
-          },
-      }
-  </script>
+            this.errorEditList = '';
+            if(alert(res.data.message)){}
+            else    window.location.reload(); 
+          
+          }).catch(function (error){
+            if(error.response){
+              if (error.response.status === 422) {
+                thisVar.errorEditList = error.response.data.errors;
+              } else if (error.request) {
+                console.log(error.request);
+              } else {
+                console.log('Error', error.message);
+              }
+            } 
+          })
+        },
+        deleteUser(userID){
+          axios.put(`http://localhost:8000/api/user/${userID}/delete`).then(res => {
+            if(alert(res.data.message)){}
+            else    window.location.reload(); 
+          }).catch(function (error){
+            if(error.response){
+              if (error.response.status === 422) {
+                thisVar.errorEditList = error.response.data.errors;
+              } else if (error.request) {
+                console.log(error.request);
+              } else {
+                console.log('Error', error.message);
+              }
+            } 
+          })
+        }
+      },
+    }
+</script>
