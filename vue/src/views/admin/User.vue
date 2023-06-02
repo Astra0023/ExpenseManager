@@ -20,10 +20,10 @@
                 </tr>
               </thead>
               <tbody class="table-group-divider" v-if="this.users.length > 0">
-                <tr class="row-pointer" data-bs-toggle="modal" data-bs-target="#editUser" v-for="(user, index) in this.users" :key="index">
+                <tr class="row-pointer" v-on:click="getUserData(user.userID)" data-bs-toggle="modal" data-bs-target="#editUser" v-for="(user, index) in this.users" :key="index">
                   <td>{{user.name}}</td>
-                  <td>{{user.description}}</td>
-                  <td>{{user.created_at}}</td>
+                  <td>{{user.email}}</td>
+                  <td>{{user.role.name}}</td>
                   <td>{{user.created_at}}</td>
                 </tr>
               </tbody>
@@ -37,12 +37,12 @@
       </div>
     </div>
   
-    <!-- Add role Modal -->
+    <!-- Add user Modal -->
     <div class="modal fade" id="addRole" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content" style="height: 500px;">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="addRoleModalLabel">Add Role</h1>
+            <h1 class="modal-title fs-5" id="addRoleModalLabel">Add User</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -53,17 +53,18 @@
             </ul>
             <form>
               <div class="mb-3">
-                <label for="userName" class="form-label">Role Name</label>
+                <label for="userName" class="form-label">User Name</label>
                 <input type="text" class="form-control" v-model="model.user.name" id="userName" name="userName" aria-describedby="roleName">
               </div>
               <div class="mb-3">
-                <label for="roleDescription" class="form-label">Description</label>
-                <input type="email" class="form-control" v-model="model.user.description" id="roleDescription" name="roleDescription">
+                <label for="userEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" v-model="model.user.email" id="userEmail" name="userEmail">
               </div>
               <div class="mb-3">
-                <select v-model="selected">
-                    <option v-for="product in products" v-bind:value="{ id: product.id, text: product.name }">
-                      {{ product.name }}
+                <select class="form-select" v-model="model.user.roleID">
+                    <option disabled value="selected">Please select one</option>
+                    <option v-for="(role, index) in this.roles" :key="index" v-bind:value="role.roleID">
+                      {{ role.name }}
                     </option>
                 </select>
               </div>
@@ -76,8 +77,9 @@
         </div>
       </div>
     </div>
-    <!-- Edit role Modal -->
-    <!-- <div class="modal fade" id="editRole" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+
+    <!-- Edit user Modal -->
+    <div class="modal fade" id="editUser" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -92,26 +94,34 @@
             </ul>
             <form>
               <div class="mb-3">
-                <input type="hidden" v-model="model.editrole.roleID" id="editroleRoleID" name="editroleRoleID" aria-describedby="roleName">
-                <label for="editroleName" class="form-label">Role Name</label>
-                <input type="text" class="form-control" v-model="model.editrole.name" id="editroleName" name="editroleName" aria-describedby="roleName">
+                <input type="hidden" v-model="model.edituser.userID" id="edituserUserID" name="edituserUserID" aria-describedby="roleName">
+                <label for="edituserName" class="form-label">User Name</label>
+                <input type="text" class="form-control" v-model="model.edituser.name" id="edituserName" name="edituserName" aria-describedby="roleName">
               </div>
               <div class="mb-3">
-                <label for="editroleDescription" class="form-label">Description</label>
-                <input type="text" class="form-control" v-model="model.editrole.description" id="editroleDescription" name="editroleDescription">
+                <label for="edituserEmail" class="form-label">Email</label>
+                <input type="text" class="form-control" v-model="model.edituser.email" id="edituserEmail" name="edituserEmail">
+              </div>
+              <div class="mb-3">
+                <select class="form-select" v-model="model.edituser.roleID" name="edituserRole" id="edituserRole">
+                    <option disabled value="selected">Please select one</option>
+                    <option v-for="(role, index) in this.roles" :key="index" v-bind:value="role.roleID">
+                      {{ role.name }}
+                    </option>
+                </select>
               </div>
             </form>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" v-if="model.editrole.name != 'Administrator' " class="mr-auto btn btn-danger" data-bs-dismiss="modal">Delete</button>
+            <button type="button" v-if="model.edituser.roleID != '6' " class="mr-auto btn btn-danger" @click="deleteUser(model.edituser.userID)">Delete</button>
             <div>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" v-if="model.editrole.name != 'Administrator' " @click="updateRole()" class="btn btn-primary ms-2">Update</button>
+              <button type="button" v-if="model.edituser.roleID != '6' " @click="updateRole()" class="btn btn-primary ms-2">Update</button>
             </div>
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
   
   </template>
   
@@ -131,12 +141,13 @@
                   errorList: '',
                   errorEditList: '',
                   users: [],
+                  roles: [],
                   editusers: [],
                   model: {
                     user: {
                         name: '',
                         email: '',
-                        roleID: ''
+                        roleID: 'selected'
                     },
                     edituser: {
                         userID: '',
@@ -154,62 +165,81 @@
             getUser(){
                 axios.get('http://localhost:8000/api/user/lists').then(res => {
                 this.users = res.data.users
-                console.log(this.users)
+                this.roles = res.data.roles
                 });
             },
-            // storeRole(){
-            //     var thisVar = this;
-            //     axios.post('http://localhost:8000/api/store', this.model.role).then(res => {
-            //       alert(res.data.message);
-  
-            //       this.model.role = {
-            //         name: '',
-            //         description: ''
-            //       }
-            //       this.errorList = '';
-            //     }).catch(function (error){
-            //       if(error.response){
-            //         if (error.response.status === 422) {
-            //           thisVar.errorList = error.response.data.errors;
-            //         } else if (error.request) {
-            //           console.log(error.request);
-            //         } else {
-            //           console.log('Error', error.message);
-            //         }
-            //       } 
-            //     })
-            // },
-            // getRoleData(roleID){
-            //     axios.get(`http://localhost:8000/api/role/${roleID}`).then(res => {
-            //       this.model.editrole.roleID = res.data.getRole.roleID
-            //       this.model.editrole.name = res.data.getRole.name
-            //       this.model.editrole.description = res.data.getRole.description
-            //     });
-            // },
-            // updateRole(){
-            //     var thisVar = this;
-            //     axios.put(`http://localhost:8000/api/role/${this.model.editrole.roleID}/edit`, this.model.editrole).then(res => {
-            //       this.model.editrole = {
-            //         roleID: '',
-            //         name: '',
-            //         description: ''
-            //       }
-            //       this.errorEditList = '';
-            //       if(alert(res.data.message)){}
-            //       else    window.location.reload(); 
-                
-            //     }).catch(function (error){
-            //       if(error.response){
-            //         if (error.response.status === 422) {
-            //           thisVar.errorEditList = error.response.data.errors;
-            //         } else if (error.request) {
-            //           console.log(error.request);
-            //         } else {
-            //           console.log('Error', error.message);
-            //         }
-            //       } 
-            //     })
-            // }
+            storeRole(){
+                var thisVar = this;
+                axios.post('http://localhost:8000/api/user/store', this.model.user).then(res => {
+                  this.model.user = {
+                    name: '',
+                    email: '',
+                    roleID: 'selected'
+                  }
+                  this.errorList = '';
+                  if(alert(res.data.message)){}
+                  else    window.location.reload(); 
+                }).catch(function (error){
+                  if(error.response){
+                    if (error.response.status === 422) {
+                      thisVar.errorList = error.response.data.errors;
+                    } else if (error.request) {
+                      console.log(error.request);
+                    } else {
+                      console.log('Error', error.message);
+                    }
+                  } 
+                })
+            },
+            getUserData(userID){
+                axios.get(`http://localhost:8000/api/user/${userID}`).then(res => {
+                  this.model.edituser.userID = res.data.userGet.userID
+                  this.model.edituser.name = res.data.userGet.name
+                  this.model.edituser.email = res.data.userGet.email
+                  this.model.edituser.roleID = res.data.userGet.roleID
+                });
+            },
+            updateRole(){
+              var thisVar = this;
+              axios.put(`http://localhost:8000/api/user/${this.model.edituser.userID}/edit`, this.model.edituser).then(res => {
+                this.model.edituser = {
+                  userID: '',
+                  roleID: '',
+                  name: '',
+                  email: ''
+                }
+                this.errorEditList = '';
+                if(alert(res.data.message)){}
+                else    window.location.reload(); 
+              
+              }).catch(function (error){
+                if(error.response){
+                  if (error.response.status === 422) {
+                    thisVar.errorEditList = error.response.data.errors;
+                  } else if (error.request) {
+                    console.log(error.request);
+                  } else {
+                    console.log('Error', error.message);
+                  }
+                } 
+              })
+            },
+            deleteUser(userID){
+              axios.put(`http://localhost:8000/api/user/${userID}/delete`).then(res => {
+                if(alert(res.data.message)){}
+                else    window.location.reload(); 
+              }).catch(function (error){
+                if(error.response){
+                  if (error.response.status === 422) {
+                    thisVar.errorEditList = error.response.data.errors;
+                  } else if (error.request) {
+                    console.log(error.request);
+                  } else {
+                    console.log('Error', error.message);
+                  }
+                } 
+              })
+            }
           },
       }
   </script>

@@ -75,7 +75,7 @@ class RolesController extends Controller
         $roleGet = Roles::where('roleID', $roleID)
         ->where('status', 'active')
         ->first();
-    return response()->json(['getRole' => $roleGet]);
+        return response()->json(['getRole' => $roleGet]);
     }
 
     /**
@@ -117,9 +117,24 @@ class RolesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($roleID)
     {
-        //
+        $roleFind = Roles::where('roleID', $roleID)->first();
+        $roleFind->update([
+            'status' => 'inactive'
+        ]);
+
+        if($roleFind->save()){
+            return response()->json([
+                'status' => 200,
+                'message' => 'Role Archived Successfully'
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something Went Wrong',
+            ], 500);
+        }
     }
 
     public function getRoles(Request $request){

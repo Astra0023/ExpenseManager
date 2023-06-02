@@ -94,7 +94,7 @@
           </form>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" v-if="model.editrole.name != 'Administrator' " class="mr-auto btn btn-danger" data-bs-dismiss="modal">Delete</button>
+          <button type="button" v-if="model.editrole.name != 'Administrator' " class="mr-auto btn btn-danger" @click="deleteRole(model.editrole.roleID)">Delete</button>
           <div>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" v-if="model.editrole.name != 'Administrator' " @click="updateRole()" class="btn btn-primary ms-2">Update</button>
@@ -146,13 +146,13 @@ import axios from 'axios'
             storeRole(){
               var thisVar = this;
               axios.post('http://localhost:8000/api/role/store', this.model.role).then(res => {
-                alert(res.data.message);
-
                 this.model.role = {
                   name: '',
                   description: ''
                 }
                 this.errorList = '';
+                if(alert(res.data.message)){}
+                else    window.location.reload(); 
               }).catch(function (error){
                 if(error.response){
                   if (error.response.status === 422) {
@@ -184,6 +184,22 @@ import axios from 'axios'
                 if(alert(res.data.message)){}
                 else    window.location.reload(); 
               
+              }).catch(function (error){
+                if(error.response){
+                  if (error.response.status === 422) {
+                    thisVar.errorEditList = error.response.data.errors;
+                  } else if (error.request) {
+                    console.log(error.request);
+                  } else {
+                    console.log('Error', error.message);
+                  }
+                } 
+              })
+            },       
+            deleteRole(roleID){
+              axios.put(`http://localhost:8000/api/role/${roleID}/delete`).then(res => {
+                if(alert(res.data.message)){}
+                else    window.location.reload(); 
               }).catch(function (error){
                 if(error.response){
                   if (error.response.status === 422) {
