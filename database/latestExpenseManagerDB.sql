@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 01, 2023 at 10:02 PM
+-- Generation Time: Jun 02, 2023 at 03:24 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -21,8 +21,58 @@ SET time_zone = "+00:00";
 -- Database: `expensemanagerdb`
 --
 
-
 CREATE DATABASE expensemanagerdb
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `expensecategory`
+--
+
+CREATE TABLE `expensecategory` (
+  `categoryID` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `status` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `expensecategory`
+--
+
+INSERT INTO `expensecategory` (`categoryID`, `name`, `description`, `created_at`, `updated_at`, `status`) VALUES
+(1, 'Travel', 'test edit desc', '2023-06-02 05:04:09', '2023-06-02 05:38:00', 'inactive'),
+(2, 'Entertainment', 'movies etc', '2023-06-02 05:04:09', '2023-06-02 05:04:09', 'inactive'),
+(3, 'Entertainment', 'Movies etc', '2023-06-02 05:30:29', '2023-06-02 05:37:57', 'inactive'),
+(4, 'Travel', 'daily commute', '2023-06-02 05:39:35', '2023-06-02 05:39:35', 'active'),
+(5, 'Entertainment', 'Movies etc', '2023-06-02 05:39:45', '2023-06-02 05:39:45', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `expenses`
+--
+
+CREATE TABLE `expenses` (
+  `expensesID` int(11) NOT NULL,
+  `categoryID` int(11) NOT NULL,
+  `amount` double(8,2) NOT NULL,
+  `entry_date` date NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `status` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `expenses`
+--
+
+INSERT INTO `expenses` (`expensesID`, `categoryID`, `amount`, `entry_date`, `created_at`, `updated_at`, `status`) VALUES
+(1, 4, 290.00, '2023-05-08', '2023-06-02 07:19:26', '2023-06-02 07:42:00', 'active'),
+(2, 4, 120.00, '2023-05-02', '2023-06-02 07:44:36', '2023-06-02 07:52:41', 'active'),
+(3, 3, 100.00, '2023-06-02', '2023-06-02 14:17:42', '2023-06-02 14:17:42', 'active');
+
 -- --------------------------------------------------------
 
 --
@@ -113,7 +163,7 @@ CREATE TABLE `role` (
 
 INSERT INTO `role` (`roleID`, `name`, `description`, `created_at`, `updated_at`, `status`) VALUES
 (6, 'Administrator', 'update Administrator', '2023-06-01 00:00:00', '2023-06-01 00:00:00', 'active'),
-(7, 'User', 'update user', '2023-06-01 00:00:00', '2023-06-01 00:00:00', 'active');
+(7, 'User', 'update user', '2023-06-01 00:00:00', '2023-06-02 05:04:09', 'active');
 
 -- --------------------------------------------------------
 
@@ -137,11 +187,26 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`userID`, `name`, `email`, `created_at`, `updated_at`, `roleID`, `status`) VALUES
 (5, 'Juan Dela Cruz', 'juan@expressmanager.com', '2023-06-01 19:19:30', '2023-06-01 19:19:30', 6, 'active'),
-(6, 'Leo Ocampo', 'leo@expressmanager.com', '2023-06-01 19:19:30', '2023-06-01 19:19:30', 7, 'active');
+(6, 'Leo Ocampo', 'leo@expressmanager.com', '2023-06-01 19:19:30', '2023-06-01 19:19:30', 7, 'active'),
+(8, 'Jhon Carlos Tamba', 'tambajhoncarlos3@gmail.com', '2023-06-01 20:42:13', '2023-06-01 20:53:59', 7, 'active'),
+(9, 'Rendon Labador', 'rendon@gmail.com', '2023-06-01 20:48:28', '2023-06-01 21:00:39', 7, 'inactive');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `expensecategory`
+--
+ALTER TABLE `expensecategory`
+  ADD PRIMARY KEY (`categoryID`);
+
+--
+-- Indexes for table `expenses`
+--
+ALTER TABLE `expenses`
+  ADD PRIMARY KEY (`expensesID`),
+  ADD KEY `expenses_rel_01` (`categoryID`);
 
 --
 -- Indexes for table `failed_jobs`
@@ -188,6 +253,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `expensecategory`
+--
+ALTER TABLE `expensecategory`
+  MODIFY `categoryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `expenses`
+--
+ALTER TABLE `expenses`
+  MODIFY `expensesID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
@@ -215,11 +292,17 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `userID` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `userID` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `expenses`
+--
+ALTER TABLE `expenses`
+  ADD CONSTRAINT `expenses_rel_01` FOREIGN KEY (`categoryID`) REFERENCES `expensecategory` (`categoryID`);
 
 --
 -- Constraints for table `users`
