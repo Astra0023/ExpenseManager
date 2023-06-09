@@ -1,3 +1,4 @@
+Installation Guide
 1. Open cmd 
  2. Run in terminal 
     - *`git clone https://github.com/Astra0023/ExpenseManager.git`* 
